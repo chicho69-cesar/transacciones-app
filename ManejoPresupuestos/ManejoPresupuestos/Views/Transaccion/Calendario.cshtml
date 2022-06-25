@@ -1,0 +1,79 @@
+﻿@model string
+
+@{
+    ViewData["Title"] = "Reporte de calendario";
+}
+
+<partial name="_Submenu" model="SubmenuTransacciones.Calendario"/>
+
+<div id="calendario"></div>
+
+<partial name="_ModalCalendario"/>
+
+@section Scripts {
+    <script src="~/lib/fullcalendar/main.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const calendarioElemento = document.getElementById('calendario');
+            const calendario = new FullCalendar.Calendar(calendarioElemento, {
+                dayMaxEvents: 3,
+                initialView: 'dayGridMonth',
+                events: '/transaccion/ObtenerTransaccionesCalendario',
+                dateClick: async function(info) {
+                    await buscarTransaccionesPorFecha(info.dateStr);
+                }
+            });
+
+            calendario.render();
+        });
+
+        async function buscarTransaccionesPorFecha(fecha) {
+            const response = await fetch(`/transaccion/ObtenerTransaccionesPorFecha?fecha=${fecha}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            let ingresos = 0;
+            let gastos = 0;
+            const tipoOperacionesIngresos = 1;
+
+            const formateador = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            });
+
+            const filas = data.map(transaccion => {
+                if (transaccion.tipoOperacionId == tipoOperacionesIngresos) {
+                    ingresos += transaccion.monto;
+                } else {
+                    gastos += transaccion.monto;
+                }
+
+                return `
+                    <tr>
+                        <td><b>${transaccion.categoria}</b></td>
+                        <td>${transaccion.cuenta}</td>
+                        <td align="right" colspan="2" 
+                        class=${transaccion.tipoOperacionId == tipoOperacionesIngresos ? 'activo' : 'pasivo'}>
+                            ${formateador.format(transaccion.monto)}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            $("#modalTablaCuerpo").html(filas);
+            $("#modalTablaFecha").html(fecha);
+            $("#modalTablaIngresos").html(formateador.format(ingresos));
+            $("#modalTablaGastos").html(formateador.format(gastos));
+
+            const modalTransacciones = new bootstrap.Modal(document.getElementById('modalTransacciones'));
+
+            modalTransacciones.show();
+        }
+    </script>
+}

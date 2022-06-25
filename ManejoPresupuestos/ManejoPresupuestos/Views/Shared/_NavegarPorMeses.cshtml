@@ -1,0 +1,18 @@
+﻿@model DateTime
+
+@{
+    string FormatoFecha(string fecha) 
+        => fecha.First().ToString().ToUpper() + fecha.Substring(1);
+}
+
+<h4 class="mt-3 mb-3">
+    <a asp-route-mes="@ViewBag.mesAnterior" asp-route-año="@ViewBag.añoAnterior" class="btn btn-secondary">
+        <i class="bi-chevron-left"></i>
+    </a>
+
+    @FormatoFecha(Model.ToString("MMMM")) - @Model.Year
+
+    <a asp-route-mes="@ViewBag.mesPosterior" asp-route-año="@ViewBag.añoPosterior" class="btn btn-secondary">
+        <i class="bi-chevron-right"></i>
+    </a>
+</h4>

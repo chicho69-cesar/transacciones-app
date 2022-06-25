@@ -1,0 +1,20 @@
+﻿body {
+    margin: 0;
+}
+
+.contenedor-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 90vh;
+}
+
+.login-titulos {
+    margin-right: 5rem;
+}
+
+.login-titulo {
+    font-size: 3rem;
+    font-family: sans-serif;
+    color: #404040;
+}
